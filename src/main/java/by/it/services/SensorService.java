@@ -24,7 +24,7 @@ public class SensorService {
         sensorRepository.save(sensor);
     }
 
-    public Optional<Sensor> checkNameUnique(Sensor sensor) {
+    public Optional<Sensor> findByName(Sensor sensor) {
         return sensorRepository.findByName(sensor.getName());
     }
 

@@ -22,7 +22,7 @@ public class SensorValidator implements Validator {
 
     @Override
     public void validate(Object target, Errors errors) {
-       if(sensorService.checkNameUnique((Sensor)target).isPresent()){
+       if(sensorService.findByName((Sensor)target).isPresent()){
            errors.rejectValue("name","","Сенсор с таким названием уже существует");
        }
     }

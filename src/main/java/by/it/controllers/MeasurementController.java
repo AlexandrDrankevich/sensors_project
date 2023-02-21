@@ -5,6 +5,7 @@ import by.it.models.Measurement;
 import by.it.services.MeasurementService;
 import by.it.util.MeasurementErrorResponse;
 import by.it.util.MeasurementNotSavedException;
+import by.it.util.MeasurementValidator;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,11 +24,13 @@ public class MeasurementController {
 
     private final MeasurementService measurementService;
     private final ModelMapper modelMapper;
+    private final MeasurementValidator measurementValidator;
 
     @Autowired
-    public MeasurementController(MeasurementService measurementService, ModelMapper modelMapper) {
+    public MeasurementController(MeasurementService measurementService, ModelMapper modelMapper, MeasurementValidator measurementValidator) {
         this.measurementService = measurementService;
         this.modelMapper = modelMapper;
+        this.measurementValidator = measurementValidator;
     }
 
     @GetMapping()
@@ -44,7 +47,9 @@ public class MeasurementController {
     @PostMapping("/add")
     public ResponseEntity<HttpStatus> addMeasurement(@RequestBody @Valid MeasurementDTO measurementDTO,
                                                      BindingResult bindingResult) {
-          if (bindingResult.hasErrors()) {
+        Measurement measurement = modelMapper.map(measurementDTO, Measurement.class);
+        measurementValidator.validate(measurement, bindingResult);
+        if (bindingResult.hasErrors()) {
             StringBuilder stringBuilder = new StringBuilder();
             List<FieldError> fieldErrors = bindingResult.getFieldErrors();
             for (FieldError fieldError : fieldErrors) {
@@ -52,10 +57,10 @@ public class MeasurementController {
                         .append(":").append(fieldError.getDefaultMessage() == null ? fieldError.getCode() : fieldError
                                 .getDefaultMessage());
             }
-              System.out.println(stringBuilder.toString());
+            System.out.println(stringBuilder.toString());
             throw new MeasurementNotSavedException(stringBuilder.toString());
         }
-        measurementService.addMeasurement(modelMapper.map(measurementDTO, Measurement.class));
+        measurementService.addMeasurement(measurement);
         return ResponseEntity.ok(HttpStatus.OK);
     }
 
