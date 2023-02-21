@@ -11,12 +11,13 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static by.it.util.ErrorHandle.errorResponse;
 
 @RestController
 @RequestMapping("/measurement")
@@ -27,7 +28,8 @@ public class MeasurementController {
     private final MeasurementValidator measurementValidator;
 
     @Autowired
-    public MeasurementController(MeasurementService measurementService, ModelMapper modelMapper, MeasurementValidator measurementValidator) {
+    public MeasurementController(MeasurementService measurementService, ModelMapper modelMapper,
+                                 MeasurementValidator measurementValidator) {
         this.measurementService = measurementService;
         this.modelMapper = modelMapper;
         this.measurementValidator = measurementValidator;
@@ -50,15 +52,7 @@ public class MeasurementController {
         Measurement measurement = modelMapper.map(measurementDTO, Measurement.class);
         measurementValidator.validate(measurement, bindingResult);
         if (bindingResult.hasErrors()) {
-            StringBuilder stringBuilder = new StringBuilder();
-            List<FieldError> fieldErrors = bindingResult.getFieldErrors();
-            for (FieldError fieldError : fieldErrors) {
-                stringBuilder.append(fieldError.getField())
-                        .append(":").append(fieldError.getDefaultMessage() == null ? fieldError.getCode() : fieldError
-                                .getDefaultMessage());
-            }
-            System.out.println(stringBuilder.toString());
-            throw new MeasurementNotSavedException(stringBuilder.toString());
+            throw new MeasurementNotSavedException(errorResponse(bindingResult));
         }
         measurementService.addMeasurement(measurement);
         return ResponseEntity.ok(HttpStatus.OK);

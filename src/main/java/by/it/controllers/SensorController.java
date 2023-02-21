@@ -11,11 +11,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
+
+import static by.it.util.ErrorHandle.errorResponse;
 
 @RestController
 @RequestMapping("/sensors")
@@ -36,17 +36,10 @@ public class SensorController {
         Sensor sensor = modelMapper.map(sensorDTO, Sensor.class);
         sensorValidator.validate(sensor, bindingResult);
         if (bindingResult.hasErrors()) {
-            StringBuilder stringBuilder = new StringBuilder();
-            List<FieldError> fieldErrors = bindingResult.getFieldErrors();
-            for (FieldError fieldError : fieldErrors) {
-                stringBuilder.append(fieldError.getField())
-                        .append(":").append(fieldError.getDefaultMessage()).append(" ");
-            }
-            throw new SensorNotCreatedException(stringBuilder.toString());
+            throw new SensorNotCreatedException(errorResponse(bindingResult));
         }
         sensorService.create(sensor);
         return ResponseEntity.ok(HttpStatus.OK);
-
     }
 
     @ExceptionHandler
