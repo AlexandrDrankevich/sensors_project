@@ -1,6 +1,7 @@
 package by.it.controllers;
 
 import by.it.dto.MeasurementDTO;
+import by.it.dto.MeasurementResponse;
 import by.it.models.Measurement;
 import by.it.services.MeasurementService;
 import by.it.util.MeasurementErrorResponse;
@@ -36,9 +37,9 @@ public class MeasurementController {
     }
 
     @GetMapping()
-    public List<MeasurementDTO> getMeasurements() {
-        return measurementService.getMeasurements().stream().map(x -> modelMapper.map(x, MeasurementDTO.class))
-                .collect(Collectors.toList());
+    public MeasurementResponse getMeasurements() {
+        return new MeasurementResponse(measurementService.getMeasurements().stream().map(x -> modelMapper.map(x, MeasurementDTO.class))
+                .collect(Collectors.toList()));
     }
 
     @GetMapping("/rainyDaysCount")
