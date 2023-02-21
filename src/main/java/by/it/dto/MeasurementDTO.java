@@ -8,9 +8,9 @@ public class MeasurementDTO {
     @NotNull(message = "Значение не должно быть пустым")
     @Min(value = -100, message = "Значение не должно быть меньше -100")
     @Max(value = 100, message = "Значение не должно быть больше 100")
-    Double value;
+    private Double value;
     @NotNull
-    Boolean raining;
+    private Boolean raining;
     @NotNull
     private SensorDTO sensor;
 
